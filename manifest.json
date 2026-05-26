@@ -1,0 +1,6 @@
+{
+  "name": "Peyv App",
+  "short_name": "Peyv",
+  "start_url": "/",
+  "display": "standalone"
+}
