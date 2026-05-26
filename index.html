@@ -1,44 +1,1163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peyv App</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Peyv</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════
+       TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --font-english: 'Plus Jakarta Sans', sans-serif;
+      --font-badini:  'Noto Naskh Arabic', serif;
+      --radius-card:  20px;
+      --radius-sm:    12px;
+      --nav-height:   72px;
+      --transition:   0.25s ease;
+    }
+
+    /* LIGHT */
+    [data-theme="light"] {
+      --bg-app:        #EEF2FF;
+      --bg-card:       #FFFFFF;
+      --bg-card-2:     #F5F7FF;
+      --bg-input:      #FFFFFF;
+      --border:        #E8ECF8;
+      --text-primary:  #0F1117;
+      --text-sub:      #5B6278;
+      --text-muted:    #9CA3AF;
+      --accent:        #4F6EF7;
+      --accent-soft:   rgba(79,110,247,0.10);
+      --accent-border: rgba(79,110,247,0.25);
+      --green:         #22C55E;
+      --green-soft:    rgba(34,197,94,0.10);
+      --red:           #EF4444;
+      --red-soft:      rgba(239,68,68,0.10);
+      --orange:        #F97316;
+      --orange-soft:   rgba(249,115,22,0.10);
+      --blue:          #3B82F6;
+      --blue-soft:     rgba(59,130,246,0.10);
+      --shadow-card:   0 2px 16px rgba(79,110,247,0.08);
+      --shadow-float:  0 8px 32px rgba(79,110,247,0.22);
+      --nav-bg:        rgba(255,255,255,0.92);
+      --streak-bg:     #FFF4E5;
+      --streak-color:  #F97316;
+      --xp-bg:         #EEF2FF;
+      --xp-color:      #4F6EF7;
+    }
+
+    /* DARK */
+    [data-theme="dark"] {
+      --bg-app:        #000000;
+      --bg-card:       #0E0E0E;
+      --bg-card-2:     #161616;
+      --bg-input:      #0E0E0E;
+      --border:        #1E1E1E;
+      --text-primary:  #F9FAFB;
+      --text-sub:      #9CA3AF;
+      --text-muted:    #4B5563;
+      --accent:        #A78BFA;
+      --accent-soft:   rgba(167,139,250,0.10);
+      --accent-border: rgba(167,139,250,0.25);
+      --green:         #34D399;
+      --green-soft:    rgba(52,211,153,0.10);
+      --red:           #F87171;
+      --red-soft:      rgba(248,113,113,0.10);
+      --orange:        #FB923C;
+      --orange-soft:   rgba(251,146,60,0.10);
+      --blue:          #60A5FA;
+      --blue-soft:     rgba(96,165,250,0.10);
+      --shadow-card:   0 2px 16px rgba(0,0,0,0.4);
+      --shadow-float:  0 8px 32px rgba(167,139,250,0.25);
+      --nav-bg:        rgba(8,8,8,0.95);
+      --streak-bg:     rgba(249,115,22,0.10);
+      --streak-color:  #FB923C;
+      --xp-bg:         rgba(167,139,250,0.10);
+      --xp-color:      #A78BFA;
+    }
+
+    /* ══════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════ */
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-family: var(--font-english);
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ══════════════════════════════════════════
+       PAGES
+    ══════════════════════════════════════════ */
+    .page { display:none; padding-bottom: calc(var(--nav-height) + 20px); animation: fadeUp 0.22s ease; }
+    .page.active { display:block; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ══════════════════════════════════════════
+       TOP BAR
+    ══════════════════════════════════════════ */
+    .topbar {
+      padding: 54px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg-app);
+      z-index: 50;
+      transition: background var(--transition);
+    }
+
+    .app-name {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+
+    .topbar-right { display:flex; align-items:center; gap:8px; }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .pill-streak { background: var(--streak-bg); color: var(--streak-color); }
+    .pill-xp     { background: var(--xp-bg);     color: var(--xp-color); }
+
+    .theme-toggle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-sub);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items:center; justify-content:center;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-card);
+    }
+
+    /* ══════════════════════════════════════════
+       HOME — SEARCH
+    ══════════════════════════════════════════ */
+    .search-wrap {
+      padding: 4px 20px 20px;
+      position: relative;
+    }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-family: var(--font-english);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      outline: none;
+      box-shadow: var(--shadow-card);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .search-btn {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items:center; justify-content:center;
+      box-shadow: var(--shadow-float);
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .search-btn:hover { transform: scale(1.05); }
+
+    /* ══════════════════════════════════════════
+       WORD RESULT
+    ══════════════════════════════════════════ */
+    .word-result { padding: 0 20px; display:flex; flex-direction:column; gap:12px; }
+
+    /* Header card */
+    .word-main-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      border: 1.5px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .word-main-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+    }
+
+    .word-meta-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 11px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-level {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+    .badge-type {
+      background: var(--bg-card-2);
+      color: var(--text-sub);
+      border: 1px solid var(--border);
+    }
+
+    /* EPIC ribbon */
+    .ribbon {
+      position: absolute;
+      top: 14px; right: -8px;
+      background: linear-gradient(135deg, #F59E0B, #EF4444);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 4px 16px 4px 10px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8% 50%);
+    }
+
+    .word-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .word-phonetic {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-sub);
+      font-size: 15px;
+    }
+    .audio-btn {
+      display: flex; align-items:center; gap:5px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-family: var(--font-english);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .audio-btn:hover { background: var(--accent); color: #fff; }
+
+    /* Info cards */
+    .info-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .info-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .info-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+
+    /* Quote-style example */
+    .example-quote {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-sub);
+      font-style: italic;
+    }
+    .example-word { color: var(--accent); font-style:normal; font-weight:700; }
+
+    /* Badini */
+    .badini-text {
+      font-family: var(--font-badini);
+      direction: rtl;
+      text-align: right;
+      font-size: 19px;
+      line-height: 1.9;
+      color: var(--text-primary);
+    }
+
+    /* Tags */
+    .tags-row { display:flex; flex-wrap:wrap; gap:8px; }
+    .tag {
+      background: var(--bg-card-2);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tag:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+
+    /* ══════════════════════════════════════════
+       FLOATING + BUTTON
+    ══════════════════════════════════════════ */
+    .fab {
+      position: fixed;
+      bottom: calc(var(--nav-height) + 16px);
+      right: 20px;
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 300;
+      line-height: 1;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-float);
+      z-index: 70;
+      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .fab:hover { transform: scale(1.08); }
+    .fab.saved {
+      background: var(--green-soft);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-size: 22px;
+    }
+
+    /* ══════════════════════════════════════════
+       LEARN PAGE
+    ══════════════════════════════════════════ */
+    .page-header { padding: 20px 20px 16px; }
+    .page-title { font-size: 26px; font-weight: 800; letter-spacing:-0.5px; }
+    .page-sub   { color: var(--text-sub); font-size:14px; margin-top:3px; }
+
+    .due-card {
+      margin: 0 20px 16px;
+      background: var(--accent);
+      border-radius: var(--radius-card);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-float);
+    }
+    .due-count { font-size:48px; font-weight:800; letter-spacing:-2px; color:#fff; line-height:1; }
+    .due-label { font-size:13px; color:rgba(255,255,255,0.75); margin-top:4px; }
+    .start-btn {
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      border-radius: 100px;
+      padding: 13px 26px;
+      font-family: var(--font-english);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .start-btn:hover { transform: scale(1.04); }
+
+    .section-label {
+      padding: 4px 20px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .word-list { padding: 0 20px; display:flex; flex-direction:column; gap:10px; }
+    .wl-item {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-card);
+    }
+    .wl-word { font-size:16px; font-weight:700; margin-bottom:3px; }
+    .wl-def  { font-size:12px; color:var(--text-sub); }
+    .level-pill {
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .lp-c1 { background:var(--accent-soft);  color:var(--accent); border:1px solid var(--accent-border); }
+    .lp-b2 { background:var(--blue-soft);    color:var(--blue);   border:1px solid rgba(59,130,246,0.25); }
+    .lp-a1 { background:var(--green-soft);   color:var(--green);  border:1px solid rgba(34,197,94,0.25); }
+
+    /* ══════════════════════════════════════════
+       FLASHCARD OVERLAY
+    ══════════════════════════════════════════ */
+    .fc-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-app);
+      z-index: 100;
+      flex-direction: column;
+      padding: 54px 20px 20px;
+    }
+    .fc-overlay.open { display:flex; animation: fadeUp 0.2s ease; }
+
+    .fc-toprow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .fc-counter { font-size:14px; font-weight:700; color:var(--text-sub); }
+    .fc-close-btn {
+      width:36px; height:36px;
+      border-radius:50%;
+      border:1.5px solid var(--border);
+      background:var(--bg-card);
+      color:var(--text-sub);
+      font-size:16px;
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    .fc-progress {
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .fc-progress-fill {
+      height: 100%;
+      width: 33%;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      border-radius: 100px;
+      transition: width 0.4s ease;
+    }
+
+    .fc-card {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .fc-card::after {
+      content: '';
+      position: absolute;
+      top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+    }
+
+    .fc-hint {
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:var(--text-muted);
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .fc-example-area {
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .fc-example-text {
+      font-size:19px;
+      font-weight:600;
+      line-height:1.7;
+      color:var(--text-primary);
+    }
+    .fc-blank {
+      display:inline-block;
+      width:90px; height:2.5px;
+      background:var(--accent);
+      border-radius:2px;
+      vertical-align:middle;
+      margin:0 3px;
+    }
+
+    .fc-divider { height:1px; background:var(--border); margin:20px 0; }
+
+    .fc-defs { display:flex; flex-direction:column; gap:10px; }
+    .fc-def-en {
+      font-size:14px;
+      color:var(--text-sub);
+      line-height:1.65;
+    }
+    .fc-def-bd {
+      font-family:var(--font-badini);
+      direction:rtl;
+      text-align:right;
+      font-size:17px;
+      line-height:1.9;
+      color:var(--text-primary);
+    }
+
+    /* Back of card */
+    .fc-back {
+      display:none;
+      flex:1;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-align:center;
+    }
+    .fc-word-reveal {
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:-2px;
+      color:var(--accent);
+    }
+    .fc-phonetic-reveal {
+      font-size:16px;
+      color:var(--text-sub);
+    }
+
+    /* Buttons */
+    .fc-btns {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+    .fc-btn {
+      border:none;
+      border-radius:14px;
+      padding:14px 10px;
+      font-family:var(--font-english);
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:3px;
+      transition:transform 0.15s;
+    }
+    .fc-btn:hover { transform:scale(1.03); }
+    .fc-btn-sub { font-size:10px; font-weight:600; opacity:0.65; }
+    .btn-again  { background:var(--red-soft);    color:var(--red);    border:1.5px solid rgba(239,68,68,0.2); }
+    .btn-hard   { background:var(--orange-soft); color:var(--orange); border:1.5px solid rgba(249,115,22,0.2); }
+    .btn-good   { background:var(--blue-soft);   color:var(--blue);   border:1.5px solid rgba(59,130,246,0.2); }
+    .btn-easy   { background:var(--green-soft);  color:var(--green);  border:1.5px solid rgba(34,197,94,0.2); }
+
+    /* ══════════════════════════════════════════
+       LEADERBOARD
+    ══════════════════════════════════════════ */
+    .lb-reset-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      margin-top:6px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      border:1px solid var(--accent-border);
+      border-radius:100px;
+      padding:5px 12px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .lb-list { padding:0 20px; display:flex; flex-direction:column; gap:8px; }
+
+    .lb-item {
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:16px;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      box-shadow:var(--shadow-card);
+      transition: border-color var(--transition);
+    }
+    .lb-item.me {
+      border-color:var(--accent-border);
+      background:var(--accent-soft);
+    }
+
+    .lb-rank { font-size:14px; font-weight:800; color:var(--text-muted); width:22px; text-align:center; flex-shrink:0; }
+    .lb-rank.gold   { color:#F59E0B; }
+    .lb-rank.silver { color:#9CA3AF; }
+    .lb-rank.bronze { color:#B45309; }
+
+    .lb-avatar {
+      width:42px; height:42px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), var(--blue));
+      display:flex; align-items:center; justify-content:center;
+      font-size:17px; font-weight:800; color:#fff;
+      flex-shrink:0;
+    }
+
+    .lb-info { flex:1; }
+    .lb-name { font-size:15px; font-weight:700; }
+    .lb-xp   { font-size:12px; color:var(--text-sub); margin-top:2px; }
+    .lb-xp strong { color:var(--accent); }
+
+    .lb-pages {
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      padding:20px;
+    }
+    .lb-pg {
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      color:var(--text-sub);
+      border-radius:100px;
+      padding:9px 22px;
+      font-family:var(--font-english);
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.15s;
+    }
+    .lb-pg:hover, .lb-pg.active { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+
+    /* ══════════════════════════════════════════
+       PROFILE
+    ══════════════════════════════════════════ */
+    .profile-top {
+      padding:20px;
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+    .profile-avatar {
+      width:70px; height:70px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), var(--blue));
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px; font-weight:800; color:#fff;
+      border:3px solid var(--accent-border);
+      position:relative;
+      flex-shrink:0;
+    }
+    .frame-badge {
+      position:absolute;
+      bottom:-4px; right:-4px;
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:100px;
+      font-size:9px;
+      font-weight:700;
+      color:var(--text-muted);
+      padding:2px 7px;
+    }
+    .profile-name { font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+    .profile-level { font-size:13px; color:var(--text-sub); margin-top:3px; }
+
+    .stats-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      padding:0 20px 16px;
+    }
+    .stat-box {
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:16px;
+      padding:16px 10px;
+      text-align:center;
+      box-shadow:var(--shadow-card);
+    }
+    .stat-val {
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+    .sv-accent { color:var(--accent); }
+    .sv-orange { color:var(--orange); }
+    .sv-blue   { color:var(--blue); }
+    .stat-lbl { font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-muted); margin-top:4px; }
+
+    .profile-section { padding:0 20px 20px; }
+    .ps-title { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; }
+
+    .locked-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .locked-item {
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:16px;
+      padding:20px 12px;
+      text-align:center;
+      position:relative;
+      box-shadow:var(--shadow-card);
+    }
+    .locked-icon { font-size:28px; margin-bottom:8px; opacity:0.35; }
+    .locked-name { font-size:13px; font-weight:600; color:var(--text-sub); }
+    .soon-badge {
+      position:absolute;
+      top:8px; right:8px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      border:1px solid var(--accent-border);
+      border-radius:100px;
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:0.5px;
+      padding:3px 7px;
+    }
+
+    /* ══════════════════════════════════════════
+       BOTTOM NAV
+    ══════════════════════════════════════════ */
+    #bottom-nav {
+      position:fixed;
+      bottom:0; left:50%;
+      transform:translateX(-50%);
+      width:100%; max-width:430px;
+      height:var(--nav-height);
+      background:var(--nav-bg);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-top:1.5px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-around;
+      z-index:80;
+      padding:0 8px;
+      transition:background var(--transition);
+    }
+
+    .nav-tab {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:8px 4px;
+      border-radius:14px;
+      position:relative;
+      transition:all 0.2s;
+    }
+    .nav-icon  { font-size:21px; transition:transform 0.2s; line-height:1; }
+    .nav-label { font-size:10px; font-weight:700; letter-spacing:0.3px; color:var(--text-muted); transition:color 0.2s; font-family:var(--font-english); }
+
+    .nav-tab.active .nav-label { color:var(--accent); }
+    .nav-tab.active .nav-icon  { transform:scale(1.15); }
+    .nav-tab.active::before {
+      content:'';
+      position:absolute;
+      top:0; left:25%; right:25%;
+      height:2.5px;
+      background:var(--accent);
+      border-radius:0 0 4px 4px;
+    }
+
+  </style>
 </head>
 <body>
-    <div id="app">
-      <section id="home" class="page active"></section>
-      <section id="learn" class="page"></section>
-      <section id="leaderboard" class="page"></section>
-      <section id="profile" class="page"></section>
+
+  <!-- ══════════ HOME ══════════ -->
+  <section id="home" class="page active">
+    <div class="topbar">
+      <div class="app-name">Peyv</div>
+      <div class="topbar-right">
+        <div class="pill pill-streak">🔥 12</div>
+        <div class="pill pill-xp">⚡ 1,720</div>
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙</button>
+      </div>
     </div>
 
-    <nav id="bottom-nav">
-      <button class="nav-tab active" data-target="home">
-        <span class="nav-icon">🔍</span>
-        <span class="nav-label">Home</span>
-      </button>
-      <button class="nav-tab" data-target="learn">
-        <span class="nav-icon">📚</span>
-        <span class="nav-label">Learn</span>
-      </button>
-      <button class="nav-tab" data-target="leaderboard">
-        <span class="nav-icon">🏆</span>
-        <span class="nav-label">Leaderboard</span>
-      </button>
-      <button class="nav-tab" data-target="profile">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Profile</span>
-      </button>
-    </nav>
+    <div class="search-wrap">
+      <div class="search-row">
+        <input class="search-input" id="searchInput" type="text" placeholder="Search in English..." />
+        <button class="search-btn" onclick="showWord()">→</button>
+      </div>
+    </div>
 
-    <script src="js/supabase.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/flashcards.js"></script>
-    <script src="js/xp.js"></script>
-    <script src="js/streaks.js"></script>
-    <script src="js/leaderboard.js"></script>
-    <script src="js/app.js"></script>
+    <div class="word-result" id="wordResult" style="display:none;">
+
+      <div class="word-main-card">
+        <div class="ribbon">EPIC</div>
+        <div class="word-meta-row">
+          <span class="badge badge-level">C1</span>
+          <span class="badge badge-type">Adjective</span>
+        </div>
+        <div class="word-title">ephemeral</div>
+        <div class="word-phonetic">
+          /ɪˈfem.ər.əl/
+          <button class="audio-btn">▶ Play</button>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">English Definition</div>
+        <div class="info-text">Lasting for a very short time; short-lived or transitory.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Badini Translation · وەرگێڕانی بادینی</div>
+        <div class="badini-text">ئەوەی بۆ کاتێکی کورت بەردەوام دەبێت؛ کاتیی.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">In a Sentence</div>
+        <div class="example-quote">
+          "Fashions are <span class="example-word">ephemeral</span>, but style is eternal."
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Synonyms</div>
+        <div class="tags-row">
+          <span class="tag">fleeting</span>
+          <span class="tag">transient</span>
+          <span class="tag">momentary</span>
+          <span class="tag">short-lived</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Antonyms</div>
+        <div class="tags-row">
+          <span class="tag">permanent</span>
+          <span class="tag">eternal</span>
+          <span class="tag">enduring</span>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="fab" id="fabBtn" onclick="toggleSaved()">+</button>
+  </section>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <section id="learn" class="page">
+    <div class="topbar">
+      <div class="app-name">Peyv</div>
+      <div class="topbar-right">
+        <div class="pill pill-streak">🔥 12</div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <div class="page-title">Daily Review</div>
+      <div class="page-sub">Keep your streak alive</div>
+    </div>
+
+    <div class="due-card">
+      <div>
+        <div class="due-count">7</div>
+        <div class="due-label">cards due today</div>
+      </div>
+      <button class="start-btn" onclick="openFC()">Start →</button>
+    </div>
+
+    <div class="section-label">Your Words</div>
+    <div class="word-list">
+      <div class="wl-item">
+        <div><div class="wl-word">ephemeral</div><div class="wl-def">Lasting for a very short time</div></div>
+        <span class="level-pill lp-c1">C1</span>
+      </div>
+      <div class="wl-item">
+        <div><div class="wl-word">ambiguous</div><div class="wl-def">Open to more than one interpretation</div></div>
+        <span class="level-pill lp-b2">B2</span>
+      </div>
+      <div class="wl-item">
+        <div><div class="wl-word">benevolent</div><div class="wl-def">Well meaning and kindly</div></div>
+        <span class="level-pill lp-b2">B2</span>
+      </div>
+      <div class="wl-item">
+        <div><div class="wl-word">apple</div><div class="wl-def">A round fruit with red or green skin</div></div>
+        <span class="level-pill lp-a1">A1</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ LEADERBOARD ══════════ -->
+  <section id="leaderboard" class="page">
+    <div class="topbar">
+      <div class="app-name">Peyv</div>
+      <div class="topbar-right">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <div class="page-title">Leaderboard</div>
+      <div class="page-sub">Weekly XP rankings</div>
+      <div class="lb-reset-pill">🔄 Resets Friday at 00:00</div>
+    </div>
+
+    <div class="lb-list">
+      <div class="lb-item">
+        <div class="lb-rank gold">1</div>
+        <div class="lb-avatar">S</div>
+        <div class="lb-info"><div class="lb-name">sara_krd</div><div class="lb-xp"><strong>2,840 XP</strong> this week</div></div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank silver">2</div>
+        <div class="lb-avatar" style="background:linear-gradient(135deg,#34D399,#60A5FA)">K</div>
+        <div class="lb-info"><div class="lb-name">kurdish_lit</div><div class="lb-xp"><strong>2,310 XP</strong> this week</div></div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank bronze">3</div>
+        <div class="lb-avatar" style="background:linear-gradient(135deg,#FB923C,#F87171)">M</div>
+        <div class="lb-info"><div class="lb-name">murad99</div><div class="lb-xp"><strong>1,950 XP</strong> this week</div></div>
+      </div>
+      <div class="lb-item me">
+        <div class="lb-rank" style="color:var(--accent)">4</div>
+        <div class="lb-avatar">O</div>
+        <div class="lb-info">
+          <div class="lb-name">omed_j <span style="font-size:10px;color:var(--accent);font-weight:700">(you)</span></div>
+          <div class="lb-xp"><strong>1,720 XP</strong> this week</div>
+        </div>
+      </div>
+      <div class="lb-item">
+        <div class="lb-rank">5</div>
+        <div class="lb-avatar" style="background:linear-gradient(135deg,#6B7280,#9CA3AF)">H</div>
+        <div class="lb-info"><div class="lb-name">hana_krd</div><div class="lb-xp"><strong>1,540 XP</strong> this week</div></div>
+      </div>
+    </div>
+
+    <div class="lb-pages">
+      <button class="lb-pg active">1</button>
+      <button class="lb-pg">Next →</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PROFILE ══════════ -->
+  <section id="profile" class="page">
+    <div class="topbar">
+      <div class="app-name">Peyv</div>
+      <div class="topbar-right">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+
+    <div class="profile-top">
+      <div class="profile-avatar">
+        O
+        <div class="frame-badge">FRAME</div>
+      </div>
+      <div>
+        <div class="profile-name">omed_j</div>
+        <div class="profile-level">Level 14 · Word Warrior</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val sv-accent">4,280</div><div class="stat-lbl">Total XP</div></div>
+      <div class="stat-box"><div class="stat-val sv-orange">🔥 12</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-box"><div class="stat-val sv-blue">47</div><div class="stat-lbl">Words</div></div>
+    </div>
+
+    <div class="profile-section">
+      <div class="ps-title">Themes</div>
+      <div class="locked-grid">
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">🌙</div><div class="locked-name">Midnight</div></div>
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">🔥</div><div class="locked-name">Ember</div></div>
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">🌊</div><div class="locked-name">Ocean</div></div>
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">🌿</div><div class="locked-name">Forest</div></div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <div class="ps-title">Achievements</div>
+      <div class="locked-grid">
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">🏆</div><div class="locked-name">Coming Soon</div></div>
+        <div class="locked-item"><div class="soon-badge">SOON</div><div class="locked-icon">⭐</div><div class="locked-name">Coming Soon</div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════ FLASHCARD OVERLAY ══════════ -->
+  <div class="fc-overlay" id="fcOverlay">
+    <div class="fc-toprow">
+      <div class="fc-counter">Card 1 of 7</div>
+      <button class="fc-close-btn" onclick="closeFC()">✕</button>
+    </div>
+    <div class="fc-progress"><div class="fc-progress-fill"></div></div>
+
+    <div class="fc-card" id="fcCard" onclick="flipFC()">
+      <div class="fc-hint" id="fcHint">TAP TO REVEAL THE WORD</div>
+
+      <div id="fcFront">
+        <div class="fc-example-area">
+          <div class="fc-example-text">
+            Fame in the digital age is <span class="fc-blank"></span> — here today, gone tomorrow.
+          </div>
+        </div>
+        <div class="fc-divider"></div>
+        <div class="fc-defs">
+          <div class="fc-def-en">Lasting for a very short time; short-lived or transitory.</div>
+          <div class="fc-def-bd">ئەوەی بۆ کاتێکی کورت بەردەوام دەبێت؛ کاتیی.</div>
+        </div>
+      </div>
+
+      <div class="fc-back" id="fcBack">
+        <div class="fc-word-reveal">ephemeral</div>
+        <div class="fc-phonetic-reveal">/ɪˈfem.ər.əl/</div>
+      </div>
+    </div>
+
+    <div class="fc-btns" id="fcBtns" style="display:none;">
+      <button class="fc-btn btn-again">Again<span class="fc-btn-sub">+6 XP</span></button>
+      <button class="fc-btn btn-hard">Hard<span class="fc-btn-sub">+34 XP</span></button>
+      <button class="fc-btn btn-good">Good<span class="fc-btn-sub">+74 XP</span></button>
+      <button class="fc-btn btn-easy">Easy<span class="fc-btn-sub">+150 XP</span></button>
+    </div>
+  </div>
+
+  <!-- ══════════ BOTTOM NAV ══════════ -->
+  <nav id="bottom-nav">
+    <button class="nav-tab active" data-target="home">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-tab" data-target="learn">
+      <span class="nav-icon">📚</span>
+      <span class="nav-label">Learn</span>
+    </button>
+    <button class="nav-tab" data-target="leaderboard">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label">Leaderboard</span>
+    </button>
+    <button class="nav-tab" data-target="profile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+
+  <script>
+    // ── Theme
+    let dark = false;
+    function toggleTheme() {
+      dark = !dark;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      document.querySelectorAll('.theme-toggle').forEach(btn => btn.textContent = dark ? '☀️' : '🌙');
+    }
+
+    // ── Navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.target).classList.add('active');
+        if (tab.dataset.target !== 'home') {
+          document.getElementById('fabBtn').style.display = 'none';
+        }
+      });
+    });
+
+    // ── Search
+    function showWord() {
+      const val = document.getElementById('searchInput').value.trim();
+      if (!val) return;
+      document.getElementById('wordResult').style.display = 'flex';
+      const fab = document.getElementById('fabBtn');
+      fab.style.display = 'flex';
+      fab.textContent = '+';
+      fab.className = 'fab';
+      savedState = false;
+    }
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') showWord();
+    });
+
+    // ── FAB
+    let savedState = false;
+    function toggleSaved() {
+      savedState = !savedState;
+      const fab = document.getElementById('fabBtn');
+      fab.textContent = savedState ? '✓' : '+';
+      fab.className = savedState ? 'fab saved' : 'fab';
+    }
+
+    // ── Flashcard
+    let flipped = false;
+    function openFC() {
+      flipped = false;
+      document.getElementById('fcFront').style.display = 'block';
+      document.getElementById('fcBack').style.display = 'none';
+      document.getElementById('fcBtns').style.display = 'none';
+      document.getElementById('fcHint').style.display = 'block';
+      document.getElementById('fcOverlay').classList.add('open');
+    }
+    function closeFC() { document.getElementById('fcOverlay').classList.remove('open'); }
+    function flipFC() {
+      if (flipped) return;
+      flipped = true;
+      document.getElementById('fcFront').style.display = 'none';
+      document.getElementById('fcBack').style.display = 'flex';
+      document.getElementById('fcBtns').style.display = 'grid';
+      document.getElementById('fcHint').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
